@@ -3,6 +3,8 @@ rstats-formatter
 
 Displays rstats bandwidth logfiles created by routers running Tomato firmware in human-readable formats and supports conversion of data to CSV/JSON to use with other programs.
 
+Released under version 3.0 of the Non-Profit Open Software License.
+
 Usage
 -----
 
