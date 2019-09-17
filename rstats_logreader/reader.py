@@ -116,7 +116,7 @@ class RStatsParser(object):
 
 				count, = unpack("B", f.read(1))
 				if len(stats) != count:
-					raise TypeError("File is not valid rstats logfile")
+					raise RuntimeError("Log day data is corrupted")
 		else:
 			return stats
 
@@ -126,6 +126,7 @@ class RStatsParser(object):
 		Retrieve bandwidth data for individual months from the given logfile
 
 		:param path: (str) Path to logfile
+		:param version: (str) RStats version of logfile
 
 		:returns: (list) RawEntry objects containing bandwidth data for their associated months
 		"""
@@ -147,7 +148,7 @@ class RStatsParser(object):
 
 				count, = unpack("B", f.read(1))
 				if len(stats) != count:
-					raise TypeError("File is not valid rstats logfile")
+					raise RuntimeError("Log month data is corrupted")
 		else:
 			return stats
 
