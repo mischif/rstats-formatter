@@ -39,7 +39,7 @@ def packed_raw_entry(date, download, upload):
 
 @composite
 def log_date(draw):
-	return draw(dates(min_value=date(1900, 1, 1), max_value=date(2155, 12, 31)))
+	return draw(dates(min_value=date(1900, 1, 2), max_value=date(2155, 12, 31)))
 
 
 @composite
@@ -48,9 +48,9 @@ def raw_entry_list(draw):
 
 	max_entries = draw(integers(min_value=1, max_value=60))
 	start_date = draw(log_date())
+	assume(start_date + timedelta(days=max_entries) <= date(2156, 1, 1))
 
 	for d in range(max_entries):
-		assume(start_date + timedelta(days=d) < date(2156, 1, 1))
 		dl, ul = draw(lists(integers(min_value=0, max_value=2**64-1), min_size=2, max_size=2))
 		result.append(parser.RawEntry(start_date + timedelta(days=d), dl, ul))
 
