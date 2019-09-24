@@ -273,14 +273,19 @@ class RStatsParser(object):
 		self.day_data = self._get_day_data(logpath)
 		self.month_data = self._get_month_data(logpath, self.logfile_version)
 
-	def print_stats(self, daily, weekly, monthly):
+	def get_stats_for_console(self, daily, weekly, monthly):
 		"""
-		Print the desired stats for the logfile to the console
+		Generate the desired statistics from the logfile, formatted as desired,
+		to be later printed to the console.
 
 		:param daily: (bool) Print daily stats to the console
 		:param weekly: (bool) Print weekly stats to the console
 		:param monthly: (bool) Print monthly stats to the console
+
+		:returns: (list) Statistics to be printed to the console
 		"""
+		stat_lines = []
+
 		if self.units == "B":
 			daily_header = u"{0}:\t\t    {1:12.0f} {3} downloaded\t{2:12.0f} {3} uploaded"
 			non_daily_header = u"{0} - {1}:    {2:12.0f} {4} downloaded\t{3:12.0f} {4} uploaded"
@@ -290,27 +295,29 @@ class RStatsParser(object):
 
 
 		if daily:
-			print(u"{:-^80}".format("Daily Bandwidth Usage"))
+			stat_lines.append(u"{:-^80}".format("Daily Bandwidth Usage"))
 
 			for stat in self._aggregate_stats(self.day_data, self.factor):
-				print(daily_header.format(stat.start, stat.download, stat.upload, self.units))
-			print("")
+				stat_lines.append(daily_header.format(stat.start, stat.download, stat.upload, self.units))
+			stat_lines.append("")
 
 		if weekly:
-			print(u"{:-^80}".format("Weekly Bandwidth Usage"))
+			stat_lines.append(u"{:-^80}".format("Weekly Bandwidth Usage"))
 
 			partitions = self._partition(self.day_data, "weekly", week_start=self.week_start)
 			for stat in self._aggregate_stats(partitions, self.factor):
-				print(non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, self.units))
-			print("")
+				stat_lines.append(non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, self.units))
+			stat_lines.append("")
 
 		if monthly:
-			print(u"{:-^80}".format("Monthly Bandwidth Usage"))
+			stat_lines.append(u"{:-^80}".format("Monthly Bandwidth Usage"))
 
 			partitions = self._partition(self.day_data, "monthly", month_start=self.month_start)
 			for stat in self._aggregate_stats(partitions, self.factor):
-				print(non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, self.units))
-			print("")
+				stat_lines.append(non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, self.units))
+			stat_lines.append("")
+
+		return stat_lines
 
 	def write_stats(self, out_path, out_format, daily, weekly, monthly):
 		"""
@@ -503,7 +510,8 @@ def main():
 	parser.parse_file(args.logpath)
 
 	if args.print_freq:
-		parser.print_stats(**vars(args.print_freq))
+		for line in parser.get_stats_for_console(**vars(args.print_freq)):
+			print(line)
 
 	if args.write_freq:
 		parser.write_stats(args.outfile, args.format, **vars(args.write_freq))

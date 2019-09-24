@@ -244,6 +244,35 @@ def test_init(week_start, month_start, units):
 	assert p.factor == factors[units]
 
 
+@given(one_of(just("B"), just("KiB")), booleans(), booleans(), booleans(), raw_entry_list())
+def test_get_stats_for_console(units, write_daily, write_weekly, write_monthly, raw_entries):
+	p = parser(0, 1, units)
+	p.day_data = raw_entries
+	res = p.get_stats_for_console(write_daily, write_weekly, write_monthly)
+
+	if units == "B":
+		daily_header = u"{0}:\t\t    {1:12.0f} {3} downloaded\t{2:12.0f} {3} uploaded"
+		non_daily_header = u"{0} - {1}:    {2:12.0f} {4} downloaded\t{3:12.0f} {4} uploaded"
+	else:
+		daily_header = u"{0}:\t\t  {1:10.3f} {3} downloaded\t{2:10.3f} {3} uploaded"
+		non_daily_header = u"{0} - {1}:  {2:10.3f} {4} downloaded\t{3:10.3f} {4} uploaded"
+
+	if write_daily:
+		daily_stats = p._aggregate_stats(raw_entries, p.factor)
+		for stat in daily_stats:
+			assert daily_header.format(stat.start, stat.download, stat.upload, units) in res
+
+	if write_weekly:
+		weekly_stats = p._aggregate_stats(p._partition(raw_entries, "weekly", week_start=p.week_start), p.factor)
+		for stat in weekly_stats:
+			assert non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, units) in res
+
+	if write_monthly:
+		monthly_stats = p._aggregate_stats(p._partition(raw_entries, "monthly", month_start=p.month_start), p.factor)
+		for stat in monthly_stats:
+			assert non_daily_header.format(stat.start, stat.end, stat.download, stat.upload, units) in res
+
+
 @pytest.mark.parametrize("out_format", ["csv", "json"])
 @given(booleans(), booleans(), booleans(), raw_entry_list())
 def test_write_stats(tmpdir, out_format, write_daily, write_weekly, write_monthly, raw_entries):
