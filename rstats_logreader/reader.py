@@ -18,12 +18,14 @@ from csv import DictWriter
 from datetime import date
 from json import dumps
 from struct import unpack
+from sys import argv
 
 from rstats_logreader import __version__
 
+
 class RStatsParser(object):
-	RawEntry = namedtuple("RawEntry", ["date", "download", "upload"])
-	AggregateStat = namedtuple("AggregateStat", ["start", "end", "download", "upload"])
+	RawEntry = namedtuple("_raw_entry", ["date", "download", "upload"])
+	AggregateStat = namedtuple("_aggregate_stat", ["start", "end", "download", "upload"])
 
 	@staticmethod
 	def _get_factor(unit):
@@ -35,7 +37,11 @@ class RStatsParser(object):
 		:returns: (int) numerical factor of unit
 		"""
 		factors = {"B": 2 ** 0, "KiB": 2 ** 10, "MiB": 2 ** 20, "GiB": 2 ** 30, "TiB": 2 ** 40}
-		return factors[unit]
+
+		try:
+			return factors[unit]
+		except KeyError:
+			raise ValueError("Invalid Factor")
 
 	@staticmethod
 	def _to_date(num):
@@ -84,9 +90,11 @@ class RStatsParser(object):
 		try:
 			with gzip.open(path, "rb") as f:
 
-				version, = unpack("<4s", f.read(4))
+				version = unpack("<4s", f.read(4))[0].decode("utf-8")
 				if version not in (u"RS00", u"RS01"):
 					raise TypeError("File is not valid rstats logfile")
+		except:
+			raise
 		else:
 			return version
 
@@ -106,7 +114,7 @@ class RStatsParser(object):
 				f.seek(32)
 
 				# Logs hold 61 data-days
- 				for _ in range(61):
+				for _ in range(61):
 					entry = RStatsParser._build_stat_entry(f.read(24))
 
 					if entry is None:
@@ -117,6 +125,8 @@ class RStatsParser(object):
 				count, = unpack("B", f.read(1))
 				if len(stats) != count:
 					raise RuntimeError("Log day data is corrupted")
+		except:
+			raise
 		else:
 			return stats
 
@@ -138,7 +148,7 @@ class RStatsParser(object):
 			with gzip.open(path, "rb") as f:
 				f.seek(1528)
 
- 				for _ in range(entries[version]):
+				for _ in range(entries[version]):
 					entry = RStatsParser._build_stat_entry(f.read(24))
 
 					if entry is None:
@@ -149,6 +159,8 @@ class RStatsParser(object):
 				count, = unpack("B", f.read(1))
 				if len(stats) != count:
 					raise RuntimeError("Log month data is corrupted")
+		except:
+			raise
 		else:
 			return stats
 
@@ -162,7 +174,7 @@ class RStatsParser(object):
 		:param week_start: (int) If using weekly resolution,
 								 the day of the week where groups begin
 		:param month_start: (int) If using monthly resolution,
-								  the day of the week where groups begin
+								  the day of the month where groups begin
 		"""
 		result = []
 		current = []
@@ -352,8 +364,8 @@ class RStatsParser(object):
 				stats["daily"] = [{
 									"date_start": str(stat.start),
 									"date_end": str(stat.start),
-									"downloaded ({})".format(self.units): stat.download,
-									"uploaded ({})".format(self.units): stat.upload,
+									"downloaded ({})".format(self.units): str(stat.download),
+									"uploaded ({})".format(self.units): str(stat.upload),
 									} for stat in self._aggregate_stats(self.day_data, self.factor)]
 
 			if weekly:
@@ -361,8 +373,8 @@ class RStatsParser(object):
 				stats["weekly"] = [{
 									"date_start": str(stat.start),
 									"date_end": str(stat.end),
-									"downloaded ({})".format(self.units): stat.download,
-									"uploaded ({})".format(self.units): stat.upload,
+									"downloaded ({})".format(self.units): str(stat.download),
+									"uploaded ({})".format(self.units): str(stat.upload),
 									} for stat in self._aggregate_stats(partitions, self.factor)]
 
 			if monthly:
@@ -370,8 +382,8 @@ class RStatsParser(object):
 				stats["monthly"] = [{
 									"date_start": str(stat.start),
 									"date_end": str(stat.end),
-									"downloaded ({})".format(self.units): stat.download,
-									"uploaded ({})".format(self.units): stat.upload,
+									"downloaded ({})".format(self.units): str(stat.download),
+									"uploaded ({})".format(self.units): str(stat.upload),
 									} for stat in self._aggregate_stats(partitions, self.factor)]
 			
 			with open(out_path, "w") as outfile:
@@ -382,7 +394,7 @@ class RStatsParser(object):
 					writer.writerows(stat_list)
 
 
-def parse_args():
+def parse_args(arg_list):
 	"""
 	Read arguments from stdin while validating and performing any necessary conversions
 
@@ -421,7 +433,7 @@ def parse_args():
 	main_parser.add_argument("--print",
 		type=norm_resolution,
 		dest="print_freq",
-		metavar="{{dwm}}",
+		metavar="{dwm}",
 		help="Print daily, weekly or monthly statistics to the console",
 		)
 
@@ -429,7 +441,7 @@ def parse_args():
 		type=norm_day,
 		default="Mon",
 		metavar="{Mon - Sun}",
-		choices=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+		choices=range(7),
 		help="Day of the week statistics should reset",
 		)
 
@@ -458,7 +470,7 @@ def parse_args():
 	write_group.add_argument("--write",
 		type=norm_resolution,
 		dest="write_freq",
-		metavar="dwm",
+		metavar="{dwm}",
 		help="Write daily, weekly or monthly statistics to a file",
 		)
 
@@ -474,7 +486,7 @@ def parse_args():
 		help="Format to write statistics in",
 		)
 
-	args = main_parser.parse_args()
+	args = main_parser.parse_args(arg_list)
 
 	if getattr(args, "write_freq", False) and args.outfile is None:
 		raise ArgumentTypeError("Missing output filename")
@@ -486,7 +498,7 @@ def main():
 	"""
 	Tool entry point
 	"""
-	args = parse_args()
+	args = parse_args(argv[1:])
 	parser = RStatsParser(args.week_start, args.month_start, args.units)
 	parser.parse_file(args.logpath)
 

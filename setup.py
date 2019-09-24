@@ -33,7 +33,7 @@ setup(
 
 	url="https://github.com/mischif/rstats-logreader",
 
-	description="RStats logfile reader that can convert bandwith data to other formats",
+	description="Read bandwidth logfiles in the RStats format and perform simple analysis/aggregation.",
 
 	long_description=long_description,
 	long_description_content_type="text/markdown",
@@ -51,6 +51,10 @@ setup(
 
 	extras_require={
 		"test": ["codecov"],
+		},
+
+	entry_points={
+		"console_scripts": ["rstats-reader=rstats_logreader.reader:main"],
 		},
 
 	classifiers=[
