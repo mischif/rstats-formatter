@@ -18,7 +18,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as desc:
 	long_description = desc.read()
 
 # Get the package version
-with open(path.join(here, 'VERSION'), encoding="utf-8") as version_file:
+with open(path.join(here, "VERSION"), encoding="utf-8") as version_file:
 	package_version = version_file.read().strip()
 
 
@@ -43,7 +43,7 @@ setup(
 
 	python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4",
 
-	data_files=[("", ["VERSION"])],
+	package_data={"rstats_logreader": ["VERSION"]},
 
 	setup_requires=["pytest-runner"],
 

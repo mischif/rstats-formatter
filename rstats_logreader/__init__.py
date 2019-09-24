@@ -11,7 +11,6 @@ from io import open
 from os.path import abspath, dirname, join
 
 module_root = dirname(abspath(__file__))
-package_root = dirname(module_root)
 
-with open(join(package_root, 'VERSION'), encoding="utf-8") as version_file:
+with open(join(module_root, "VERSION"), encoding="utf-8") as version_file:
 	__version__ = version_file.read().strip()
