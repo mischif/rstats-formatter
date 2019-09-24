@@ -1,6 +1,9 @@
 rstats-logreader
 ================
 
+[![Travis](https://img.shields.io/travis/mischif/rstats-logreader.svg)](https://travis-ci.org/mischif/rstats-logreader)
+[![Codecov](https://img.shields.io/codecov/c/github/mischif/rstats-logreader.svg)](https://codecov.io/gh/mischif/rstats-logreader)
+
 Read bandwidth logfiles in the RStats format (usually created by routers running some offshoot of the Tomato firmware) and perform simple analysis/aggregation.
 
 Supports printing bandwidth data to the console, as well as conversion to CSV or JSON formats for further ingestion downstream.
