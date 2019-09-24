@@ -7,9 +7,9 @@
 #       Released under version 3.0 of the Non-Profit Open Source License       #
 ################################################################################
 
-from setuptools import setup
-from os import path
 from io import open
+from os import path
+from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 
