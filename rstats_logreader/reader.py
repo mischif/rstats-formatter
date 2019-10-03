@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 
 ################################################################################
@@ -515,6 +514,3 @@ def main():
 
 	if args.write_freq:
 		parser.write_stats(args.outfile, args.format, **vars(args.write_freq))
-
-
-if __name__ == "__main__": main()
