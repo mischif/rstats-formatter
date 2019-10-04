@@ -8,17 +8,19 @@
 ################################################################################
 
 from io import open
-from os import path
+from os.path import abspath, dirname, join
 from setuptools import setup
 
-here = path.abspath(path.dirname(__file__))
+
+package_root = abspath(dirname(__file__))
+module_root = join(package_root, "rstats_logreader")
 
 # Get the long description from the README file
-with open(path.join(here, "README.md"), encoding="utf-8") as desc:
+with open(join(package_root, "README.md"), encoding="utf-8") as desc:
 	long_description = desc.read()
 
 # Get the package version
-with open(path.join(here, "VERSION"), encoding="utf-8") as version_file:
+with open(join(module_root, "VERSION"), encoding="utf-8") as version_file:
 	package_version = version_file.read().strip()
 
 
