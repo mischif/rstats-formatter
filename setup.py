@@ -62,15 +62,23 @@ setup(
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 
-		"Operating System :: OS Independent",
+		"Environment :: Console",
+		
+		"Intended Audience :: Information Technology",
 
 		"License :: OSI Approved :: Open Software License 3.0 (OSL-3.0)",
+
+		"Operating System :: OS Independent",
 
 		"Programming Language :: Python :: 2",
 		"Programming Language :: Python :: 2.7",
 		"Programming Language :: Python :: 3",
 		"Programming Language :: Python :: 3.6",
 		"Programming Language :: Python :: 3.7",
+		"Programming Language :: Python :: 3.8",
+
+		"Topic :: System :: Networking",
+		"Topic :: System :: Networking :: Monitoring",
 		],
 
 	keywords="RStats",

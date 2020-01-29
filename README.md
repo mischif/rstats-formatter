@@ -1,9 +1,9 @@
 rstats-logreader
 ================
 
-[![Python Versions](https://img.shields.io/pypi/pyversions/rstats-logreader?style=for-the-badge)](https://pypi.org/project/rstats-logreader/)
 [![Travis](https://img.shields.io/travis/mischif/rstats-logreader.svg?style=for-the-badge)](https://travis-ci.org/mischif/rstats-logreader)
 [![Codecov](https://img.shields.io/codecov/c/github/mischif/rstats-logreader.svg?style=for-the-badge)](https://codecov.io/gh/mischif/rstats-logreader)
+[![Python Versions](https://img.shields.io/pypi/pyversions/rstats-logreader?style=for-the-badge)](https://pypi.org/project/rstats-logreader/)
 [![Package Version](https://img.shields.io/pypi/v/rstats-logreader?style=for-the-badge)](https://pypi.org/project/rstats-logreader/)
 [![License](https://img.shields.io/pypi/l/rstats-logreader?style=for-the-badge)](https://pypi.org/project/rstats-logreader/)
 

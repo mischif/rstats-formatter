@@ -6,8 +6,11 @@ python:
     - "2.7"
     - "3.6"
     - "3.7"
+    - "3.8"
     - "pypy"
     - "pypy3"
+
+before_install: pip install hypothesis
 
 install: pip install .[test]
 
