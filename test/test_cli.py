@@ -36,10 +36,7 @@ def patched_parse_known_args(self, args=None, namespace=None):
 		if action.dest is not SUPPRESS:
 			if not hasattr(namespace, action.dest):
 				if action.default is not SUPPRESS:
-					default = action.default
-					if isinstance(action.default, basestring):
-						default = self._get_value(action, default)
-					setattr(namespace, action.dest, default)
+					setattr(namespace, action.dest, action.default)
 
 	# add any parser defaults that aren't present
 	for dest in self._defaults:
