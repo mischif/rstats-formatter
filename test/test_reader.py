@@ -11,10 +11,10 @@ from __future__ import division
 
 import gzip
 
-from argparse import ArgumentTypeError
 from csv import DictReader
 from datetime import date, timedelta
 from json import load
+from mock import patch
 from struct import pack
 
 import pytest
@@ -22,7 +22,7 @@ import pytest
 from hypothesis import assume, example, given
 from hypothesis.strategies import booleans, composite, data, dates, integers, just, lists, none, one_of
 
-from rstats_logreader.reader import main, parse_args, RStatsParser as parser
+from rstats_logreader.reader import RStatsParser as parser
 
 
 def packed_date(date_to_pack):
@@ -244,6 +244,17 @@ def test_init(week_start, month_start, units):
 	assert p.factor == factors[units]
 
 
+@patch.object(parser, "_get_logfile_version", return_value=0)
+@patch.object(parser, "_get_day_data", return_value=["day_data"])
+@patch.object(parser, "_get_month_data", return_value=["month_data"])
+def test_parse_file(mock_month_data, mock_day_data, mock_logfile_version):
+	p = parser(0, 1, "B")
+	p.parse_file("/tmp/logfile.gz")
+	assert p.logfile_version == 0
+	assert p.day_data == ["day_data"]
+	assert p.month_data == ["month_data"]
+
+
 @given(one_of(just("B"), just("KiB")), booleans(), booleans(), booleans(), raw_entry_list())
 def test_get_stats_for_console(units, write_daily, write_weekly, write_monthly, raw_entries):
 	p = parser(0, 1, units)
@@ -347,77 +358,3 @@ def test_write_stats(tmpdir, out_format, write_daily, write_weekly, write_monthl
 						"downloaded ({})".format(p.units): str(stat.download),
 						"uploaded ({})".format(p.units): str(stat.upload)
 						} in dumped_stats
-
-
-@given(
-	one_of(none(), just("B"), just("KiB"), just("MiB"), just("GiB"), just("TiB")),
-	one_of(none(), just("Mon"), just("Tue"), just("Wed"), just("Thu"), just("Fri"), just("Sat"), just("Sun")),
-	one_of(none(), integers(min_value=1, max_value=31)),
-	booleans(), booleans(), booleans(),
-	one_of(none(), just("json"), just("csv")),
-	booleans(), booleans(), booleans(),
-	booleans()
-	)
-def test_parse_args(tmpdir, units, week_start, month_start,
-					print_daily, print_weekly, print_monthly,
-					out_format, write_daily, write_weekly, write_monthly,
-					has_outfile):
-
-	days = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6}
-	args_list = []
-
-	if out_format is not None:
-		args_list.extend(["-f", out_format])
-
-	if units is not None:
-		args_list.extend(["-u", units])
-
-	if week_start is not None:
-		args_list.extend(["-w", week_start])
-
-	if month_start is not None:
-		args_list.extend(["-m", str(month_start)])
-
-	if any([print_daily, print_weekly, print_monthly]):
-		freqs = filter(lambda i: i[1], [("d", print_daily),
-										("w", print_weekly),
-										("m", print_monthly)])
-		freq_strings = "".join([f[0] for f in freqs])
-		args_list.extend(["--print", freq_strings])
-
-	if any([write_daily, write_weekly, write_monthly]):
-		freqs = filter(lambda i: i[1], [("d", write_daily),
-										("w", write_weekly),
-										("m", write_monthly)])
-		freq_strings = "".join([f[0] for f in freqs])
-		args_list.extend(["--write", freq_strings])
-
-	if has_outfile:
-		args_list.extend(["-o", str(tmpdir.join("outfile"))])
-
-	args_list.append(str(tmpdir.join("infile.gz")))
-
-	if any([write_daily, write_weekly, write_monthly]) and not has_outfile:
-		with pytest.raises(ArgumentTypeError):
-			parse_args(args_list)
-	else:
-		parsed = parse_args(args_list)
-
-		assert parsed.logpath == str(tmpdir.join("infile.gz"))
-		assert parsed.format == (out_format or "csv")
-		assert parsed.units == (units or "MiB")
-		assert parsed.week_start == days.get(week_start, 0)
-		assert parsed.month_start == (month_start or 1)
-
-		if has_outfile:
-			assert parsed.outfile == str(tmpdir.join("outfile"))
-
-		if parsed.print_freq is not None:
-			assert parsed.print_freq.daily == print_daily
-			assert parsed.print_freq.weekly == print_weekly
-			assert parsed.print_freq.monthly == print_monthly
-
-		if parsed.write_freq is not None:
-			assert parsed.write_freq.daily == write_daily
-			assert parsed.write_freq.weekly == write_weekly
-			assert parsed.write_freq.monthly == write_monthly

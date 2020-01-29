@@ -49,14 +49,14 @@ setup(
 
 	setup_requires=["pytest-runner"],
 
-	tests_require=["hypothesis", "hypothesis-pytest", "pytest", "pytest-cov"],
+	tests_require=["hypothesis", "hypothesis-pytest", "mock", "pytest", "pytest-cov"],
 
 	extras_require={
 		"test": ["codecov"],
 		},
 
 	entry_points={
-		"console_scripts": ["rstats-reader=rstats_logreader.reader:main"],
+		"console_scripts": ["rstats-reader=rstats_logreader.cli:main"],
 		},
 
 	classifiers=[
