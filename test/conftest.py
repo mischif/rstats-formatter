@@ -7,14 +7,12 @@
 #       Released under version 3.0 of the Non-Profit Open Source License       #
 ################################################################################
 
-from os import getenv
-
 from hypothesis import HealthCheck, settings
+from hypothesis.database import ExampleDatabase
 
 settings.register_profile(u"ci",
-						  database=None,
-						  deadline=300,
-						  max_examples=1000,
+						  database=ExampleDatabase(":memory:"),
+						  deadline=None,
+						  max_examples=200,
+						  stateful_step_count=200,
 						  suppress_health_check=[HealthCheck.too_slow])
-
-settings.load_profile(getenv(u"HYPOTHESIS_PROFILE", u"default"))

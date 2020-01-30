@@ -5,7 +5,7 @@
 #       Released under version 3.0 of the Non-Profit Open Source License       #
 ################################################################################
 
-CI_OPTIONS="--cov-report xml"
+CI_OPTIONS="--cov-report xml --hypothesis-profile ci"
 
 .PHONY: test ci-test build
 
@@ -18,7 +18,7 @@ test:
 	python -B setup.py test
 
 ci-test:
-	HYPOTHESIS_PROFILE=ci python setup.py test --addopts ${CI_OPTIONS}
+	python setup.py test --addopts ${CI_OPTIONS}
 
 build:
 	python setup.py build sdist bdist_wheel
