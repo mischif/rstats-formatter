@@ -13,21 +13,14 @@ from setuptools import find_packages, setup
 
 
 package_root = abspath(dirname(__file__))
-module_root = join(package_root, "src", "rstats_logreader")
 
 # Get the long description from the README file
 with open(join(package_root, "README.md"), encoding="utf-8") as desc:
 	long_description = desc.read()
 
-# Get the package version
-with open(join(module_root, "VERSION"), encoding="utf-8") as version_file:
-	package_version = version_file.read().strip()
-
 
 setup(
 	name="rstats-logreader",
-
-	version=package_version,
 
 	packages=find_packages(where="src"),
 
@@ -49,7 +42,7 @@ setup(
 
 	package_data={"rstats_logreader": ["VERSION"]},
 
-	setup_requires=["pytest-runner"],
+	setup_requires=["pytest-runner", "setuptools_scm"],
 
 	tests_require=["hypothesis", "hypothesis-pytest", "mock", "pytest", "pytest-cov"],
 
