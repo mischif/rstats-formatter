@@ -9,11 +9,11 @@
 
 from io import open
 from os.path import abspath, dirname, join
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 package_root = abspath(dirname(__file__))
-module_root = join(package_root, "rstats_logreader")
+module_root = join(package_root, "src", "rstats_logreader")
 
 # Get the long description from the README file
 with open(join(package_root, "README.md"), encoding="utf-8") as desc:
@@ -29,7 +29,9 @@ setup(
 
 	version=package_version,
 
-	packages=["rstats_logreader"],
+	packages=find_packages(where="src"),
+
+	package_dir={"": "src"},
 
 	license="NPOSL-3.0",
 
@@ -51,12 +53,30 @@ setup(
 
 	tests_require=["hypothesis", "hypothesis-pytest", "mock", "pytest", "pytest-cov"],
 
+	zip_safe=False,
+	
+	keywords=["RStats", "logfile"],
+
 	extras_require={
 		"test": ["codecov"],
 		},
 
 	entry_points={
 		"console_scripts": ["rstats-reader=rstats_logreader.cli:main"],
+		},
+
+	options={
+		"aliases": {
+			"test": "pytest",
+			},
+
+		"bdist_wheel": {
+			"universal": "1",
+			},
+
+		"metadata": {
+			"license_files": "LICENSE",
+			},
 		},
 
 	classifiers=[
@@ -80,6 +100,4 @@ setup(
 		"Topic :: System :: Networking",
 		"Topic :: System :: Networking :: Monitoring",
 		],
-
-	keywords="RStats",
 	)
